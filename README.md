@@ -104,10 +104,10 @@ The supplied PermitOS logo remains unchanged at `public/permitos-logo.png`.
 
 ## StudioNet deployment
 
-- Contract: [`0xfbA2E85aA023d0457C4Ac5b18522243093187414`](https://explorer-studio.genlayer.com/address/0xfbA2E85aA023d0457C4Ac5b18522243093187414)
+- Superseded V1 contract: [`0xfbA2E85aA023d0457C4Ac5b18522243093187414`](https://explorer-studio.genlayer.com/address/0xfbA2E85aA023d0457C4Ac5b18522243093187414). Live assessment exposed a JSON-string normalization bug; V2 fixes it and requires a new deployment.
 - Verified source and fixture commit: [`d5bb8c3cd571f444b8921db007e442073450a0e1`](https://github.com/eaglebooth/PermitOS/commit/d5bb8c3cd571f444b8921db007e442073450a0e1)
 - Fixture authority prefix: `https://raw.githubusercontent.com/eaglebooth/PermitOS`
 
-The frontend validates `get_contract_version` against this deployment before
+The frontend validates `get_contract_version` against the configured deployment before
 every write. The first public fixture set remains pinned to the full commit above,
 so later documentation changes cannot alter the bytes assessed by validators.

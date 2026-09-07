@@ -7,7 +7,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "verify:studionet": "node scripts/live-suite.mjs"
   },
   "dependencies": {
     "genlayer-js": "1.1.8",

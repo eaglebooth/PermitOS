@@ -109,7 +109,7 @@ def ready_for_assessment(contract, direct_vm, owner, permittee):
 def test_initial_version_and_counts(direct_vm, direct_deploy, direct_owner):
     contract = deploy(direct_vm, direct_deploy, direct_owner)
     assert json.loads(contract.get_contract_version()) == {
-        "name": "PermitOS", "schema": "sealed-intake-v1", "version": 1,
+        "name": "PermitOS", "schema": "sealed-intake-v2", "version": 2,
     }
     assert json.loads(contract.get_counts()) == {
         "permit_count": 0, "condition_total": 0, "attempt_total": 0, "finalized_total": 0,
@@ -286,6 +286,16 @@ def test_malformed_model_output_rolls_back(direct_vm, direct_deploy, direct_owne
     with pytest.raises(Exception, match="INVALID_MODEL_OUTPUT"):
         contract.assess_condition("EP-204", "0")
     assert contract.get_condition("EP-204", "0") == before
+
+
+def test_json_string_model_output_is_accepted(direct_vm, direct_deploy, direct_owner, direct_alice):
+    contract = deploy(direct_vm, direct_deploy, direct_owner)
+    ready_for_assessment(contract, direct_vm, direct_owner, direct_alice)
+    direct_vm.clear_mocks()
+    direct_vm.mock_web(PERMIT_URL, {"status": 200, "body": PERMIT})
+    direct_vm.mock_web(EVIDENCE_URL, {"status": 200, "body": EVIDENCE})
+    direct_vm.mock_llm(r".*", json.dumps(json.dumps(MATCH)))
+    assert contract.assess_condition("EP-204", "0") == "DEMONSTRATED"
 
 
 def test_reassessment_and_double_finalization_rejected(direct_vm, direct_deploy, direct_owner, direct_alice):

@@ -193,19 +193,23 @@ def _fetch_exact(url: str, sha256: str, byte_length: int, citation: str) -> dict
 
 
 def _normalize(raw: typing.Any) -> dict[str, typing.Any]:
-    if not isinstance(raw, dict) or set(raw.keys()) != {
+    try:
+        parsed = json.loads(raw) if isinstance(raw, str) else raw
+    except Exception:
+        return {}
+    if not isinstance(parsed, dict) or set(parsed.keys()) != {
         "permit_relation", "facility_relation", "period_relation", "revision_relation", "jurisdiction_relation",
         "coverage", "contradiction", "reason",
     }:
         return {}
-    permit_relation = str(raw.get("permit_relation", "")).upper()
-    facility_relation = str(raw.get("facility_relation", "")).upper()
-    period_relation = str(raw.get("period_relation", "")).upper()
-    revision_relation = str(raw.get("revision_relation", "")).upper()
-    jurisdiction_relation = str(raw.get("jurisdiction_relation", "")).upper()
-    coverage = str(raw.get("coverage", "")).upper()
-    contradiction = raw.get("contradiction")
-    reason = _text(str(raw.get("reason", "")), 8, 700)
+    permit_relation = str(parsed.get("permit_relation", "")).upper()
+    facility_relation = str(parsed.get("facility_relation", "")).upper()
+    period_relation = str(parsed.get("period_relation", "")).upper()
+    revision_relation = str(parsed.get("revision_relation", "")).upper()
+    jurisdiction_relation = str(parsed.get("jurisdiction_relation", "")).upper()
+    coverage = str(parsed.get("coverage", "")).upper()
+    contradiction = parsed.get("contradiction")
+    reason = _text(str(parsed.get("reason", "")), 8, 700)
     if any(item not in RELATIONS for item in (permit_relation, facility_relation, period_relation, revision_relation, jurisdiction_relation)):
         return {}
     if coverage not in COVERAGE or not isinstance(contradiction, bool) or not reason:
@@ -613,7 +617,7 @@ class PermitOS(gl.Contract):
 
     @gl.public.view
     def get_contract_version(self) -> str:
-        return json.dumps({"name": "PermitOS", "version": 1, "schema": "sealed-intake-v1"}, sort_keys=True)
+        return json.dumps({"name": "PermitOS", "version": 2, "schema": "sealed-intake-v2"}, sort_keys=True)
 
     @gl.public.view
     def get_permit(self, permit_id: str) -> str:

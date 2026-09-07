@@ -72,7 +72,7 @@ export default function PermitConsole() {
     setBusy("sync");
     const version = await readContract("get_contract_version");
     const schema = version.success ? unwrap<{ name: string; version: number }>(version.data) : null;
-    if (!schema || schema.name !== "PermitOS" || schema.version !== 1) {
+    if (!schema || schema.name !== "PermitOS" || schema.version !== 2) {
       setNotice({ kind: "error", text: version.error || "Contract version handshake failed. Writes remain disabled." });
       setBusy("");
       return;
@@ -154,7 +154,7 @@ export default function PermitConsole() {
   return <main className="console-shell">
     <header className="console-header">
       <Link className="brand" href="/"><Image src="/permitos-logo.png" width={40} height={40} alt="PermitOS logo"/><span>PermitOS</span></Link>
-      <span className="network-pill">● STUDIONET / SEALED INTAKE V1</span>
+      <span className="network-pill">● STUDIONET / SEALED INTAKE V2</span>
       <div className="console-header-actions"><button className="wallet-button" onClick={connect} disabled={Boolean(busy)}><WalletCards size={15}/> {wallet ? short(wallet) : "Connect wallet"}</button></div>
     </header>
     <div className="console-grid">

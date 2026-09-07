@@ -84,7 +84,7 @@ export async function writeContract(functionName: string, args: unknown[] = []):
     if (pending) return { success: false, hash: pending, error: "Recover the pending transaction before another write." };
     const handshake = await readContract("get_contract_version");
     const version = handshake.success ? unwrap<{ name: string; version: number; schema: string }>(handshake.data) : null;
-    if (version?.name !== "PermitOS" || version.version !== 1 || version.schema !== "sealed-intake-v1") {
+    if (version?.name !== "PermitOS" || version.version !== 2 || version.schema !== "sealed-intake-v2") {
       return { success: false, error: handshake.error || "PermitOS contract version verification failed." };
     }
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" }) as string[];

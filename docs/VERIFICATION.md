@@ -17,7 +17,7 @@ tampering, duplicate citations, replay, and all three aggregate outcomes.
 Before submission, repeat the following against one exact StudioNet deployment:
 
 1. Confirm `get_contract_version` returns `PermitOS`, version `1`, schema
-   `sealed-intake-v1`.
+   `sealed-intake-v2`.
 2. Run a ready dossier with all three positive fixtures.
 3. Run a dossier using `actions-open.txt`; confirm `ACTION_REQUIRED`.
 4. Run a dossier using `inspection-ambiguous.txt`; confirm `HUMAN_REVIEW`.
