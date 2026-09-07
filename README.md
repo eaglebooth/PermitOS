@@ -104,7 +104,9 @@ The supplied PermitOS logo remains unchanged at `public/permitos-logo.png`.
 
 ## StudioNet deployment
 
-- Superseded V1 contract: [`0xfbA2E85aA023d0457C4Ac5b18522243093187414`](https://explorer-studio.genlayer.com/address/0xfbA2E85aA023d0457C4Ac5b18522243093187414). Live assessment exposed a JSON-string normalization bug; V2 fixes it and requires a new deployment.
+- Superseded V1 contract: [`0xfbA2E85aA023d0457C4Ac5b18522243093187414`](https://explorer-studio.genlayer.com/address/0xfbA2E85aA023d0457C4Ac5b18522243093187414). Live assessment exposed a JSON-string normalization issue.
+- Superseded V2 contract: [`0x4ce975E084B24525ECD8D3A1d9bAD938d6A6D5B7`](https://explorer-studio.genlayer.com/address/0x4ce975E084B24525ECD8D3A1d9bAD938d6A6D5B7). It accepted nested JSON but StudioNet still rejected the bounded model response.
+- Diagnostic V3 contract: [`0xCC1611F73F8f9f0d21D5F0bD2F8617025A26B4dc`](https://explorer-studio.genlayer.com/address/0xCC1611F73F8f9f0d21D5F0bD2F8617025A26B4dc). The live run proved the response was an object with all required fields; V4 canonicalizes a finite, explicitly allowed set of model enum aliases while remaining fail-closed for unknown values and types.
 - Verified source and fixture commit: [`d5bb8c3cd571f444b8921db007e442073450a0e1`](https://github.com/eaglebooth/PermitOS/commit/d5bb8c3cd571f444b8921db007e442073450a0e1)
 - Fixture authority prefix: `https://raw.githubusercontent.com/eaglebooth/PermitOS`
 

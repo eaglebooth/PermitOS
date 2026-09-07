@@ -205,14 +205,30 @@ def _normalize(raw: typing.Any) -> dict[str, typing.Any]:
     }
     if not isinstance(parsed, dict) or not required.issubset(set(parsed.keys())):
         return {}
-    permit_relation = str(parsed.get("permit_relation", "")).upper()
-    facility_relation = str(parsed.get("facility_relation", "")).upper()
-    period_relation = str(parsed.get("period_relation", "")).upper()
-    revision_relation = str(parsed.get("revision_relation", "")).upper()
-    jurisdiction_relation = str(parsed.get("jurisdiction_relation", "")).upper()
-    coverage = str(parsed.get("coverage", "")).upper()
+    relation_aliases = {
+        "MATCH": "MATCH", "MATCHED": "MATCH", "ALIGNED": "MATCH", "CONSISTENT": "MATCH",
+        "MISMATCH": "MISMATCH", "MISMATCHED": "MISMATCH", "CONFLICT": "MISMATCH", "CONFLICTING": "MISMATCH",
+        "UNKNOWN": "UNKNOWN", "UNCLEAR": "UNKNOWN", "UNRESOLVED": "UNKNOWN", "UNDETERMINED": "UNKNOWN",
+    }
+    coverage_aliases = {
+        "SUFFICIENT": "SUFFICIENT", "COMPLETE": "SUFFICIENT", "FULL": "SUFFICIENT", "ADEQUATE": "SUFFICIENT",
+        "PARTIAL": "PARTIAL", "PARTIALLY_SUFFICIENT": "PARTIAL",
+        "INSUFFICIENT": "INSUFFICIENT", "INCOMPLETE": "INSUFFICIENT", "INADEQUATE": "INSUFFICIENT",
+    }
+    permit_relation = relation_aliases.get(str(parsed.get("permit_relation", "")).upper(), "")
+    facility_relation = relation_aliases.get(str(parsed.get("facility_relation", "")).upper(), "")
+    period_relation = relation_aliases.get(str(parsed.get("period_relation", "")).upper(), "")
+    revision_relation = relation_aliases.get(str(parsed.get("revision_relation", "")).upper(), "")
+    jurisdiction_relation = relation_aliases.get(str(parsed.get("jurisdiction_relation", "")).upper(), "")
+    coverage = coverage_aliases.get(str(parsed.get("coverage", "")).upper(), "")
     contradiction = parsed.get("contradiction")
-    reason = _text(str(parsed.get("reason", "")), 8, 700)
+    if isinstance(contradiction, str) and contradiction.lower() in ("true", "false"):
+        contradiction = contradiction.lower() == "true"
+    reason_value = parsed.get("reason", "")
+    if not isinstance(reason_value, str):
+        return {}
+    raw_reason = " ".join(reason_value.split())
+    reason = raw_reason[:700] if raw_reason else ""
     if any(item not in RELATIONS for item in (permit_relation, facility_relation, period_relation, revision_relation, jurisdiction_relation)):
         return {}
     if coverage not in COVERAGE or not isinstance(contradiction, bool) or not reason:
@@ -227,6 +243,28 @@ def _normalize(raw: typing.Any) -> dict[str, typing.Any]:
         "contradiction": contradiction,
         "reason": reason,
     }
+
+
+def _model_output_detail(raw: typing.Any) -> str:
+    """Return bounded, non-document diagnostic metadata for rejected model output."""
+    try:
+        parsed = json.loads(raw) if isinstance(raw, str) else raw
+        if isinstance(parsed, str):
+            parsed = json.loads(parsed)
+    except Exception:
+        parsed = raw
+    if not isinstance(parsed, dict):
+        kind = type(parsed).__name__
+        return "TYPE_" + str(kind)[:20]
+    labels = (
+        ("P", "permit_relation"), ("F", "facility_relation"), ("T", "period_relation"),
+        ("R", "revision_relation"), ("J", "jurisdiction_relation"), ("C", "coverage"),
+    )
+    parts = [label + "=" + str(parsed.get(key, "-")).upper()[:12] for label, key in labels]
+    contradiction = parsed.get("contradiction", "-")
+    parts.append("X=" + type(contradiction).__name__[:4] + ":" + str(contradiction)[:5])
+    parts.append("Q=" + type(parsed.get("reason", "-")).__name__[:4])
+    return "|".join(parts)
 
 
 def _derive_condition(result: dict[str, typing.Any]) -> str:
@@ -526,12 +564,7 @@ class PermitOS(gl.Contract):
             model_output = gl.nondet.exec_prompt(prompt, response_format="json")
             result = _normalize(model_output)
             if not result:
-                if isinstance(model_output, dict):
-                    detail = "DICT_KEYS_" + "_".join(sorted(str(key)[:20] for key in model_output.keys()))
-                elif isinstance(model_output, str):
-                    detail = "STRING_" + model_output[:80].replace("\n", " ").replace("\r", " ")
-                else:
-                    detail = "TYPE_" + str(type(model_output).__name__)
+                detail = _model_output_detail(model_output)
                 return json.dumps({"error": "INVALID_MODEL_OUTPUT_" + detail[:160]})
             return json.dumps({"result": result, "permit_sha256": permit_sha, "evidence_sha256": evidence_sha}, sort_keys=True)
 
@@ -627,7 +660,7 @@ class PermitOS(gl.Contract):
 
     @gl.public.view
     def get_contract_version(self) -> str:
-        return json.dumps({"name": "PermitOS", "version": 3, "schema": "sealed-intake-v3"}, sort_keys=True)
+        return json.dumps({"name": "PermitOS", "version": 4, "schema": "sealed-intake-v4"}, sort_keys=True)
 
     @gl.public.view
     def get_permit(self, permit_id: str) -> str:
