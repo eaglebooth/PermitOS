@@ -113,7 +113,7 @@ async function expectRollback(label, functionName, args, client) {
 }
 
 const version = await read("get_contract_version");
-if (version.name !== "PermitOS" || version.version !== 2 || version.schema !== "sealed-intake-v2") throw new Error("Contract handshake failed");
+if (version.name !== "PermitOS" || version.version !== 3 || version.schema !== "sealed-intake-v3") throw new Error("Contract handshake failed");
 process.stdout.write(`HANDSHAKE_OK issuer=${issuerAccount.address} permittee=${permitteeAccount.address}\n`);
 
 const runTag = String(Date.now());

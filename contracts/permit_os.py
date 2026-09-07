@@ -195,12 +195,15 @@ def _fetch_exact(url: str, sha256: str, byte_length: int, citation: str) -> dict
 def _normalize(raw: typing.Any) -> dict[str, typing.Any]:
     try:
         parsed = json.loads(raw) if isinstance(raw, str) else raw
+        if isinstance(parsed, str):
+            parsed = json.loads(parsed)
     except Exception:
         return {}
-    if not isinstance(parsed, dict) or set(parsed.keys()) != {
+    required = {
         "permit_relation", "facility_relation", "period_relation", "revision_relation", "jurisdiction_relation",
         "coverage", "contradiction", "reason",
-    }:
+    }
+    if not isinstance(parsed, dict) or not required.issubset(set(parsed.keys())):
         return {}
     permit_relation = str(parsed.get("permit_relation", "")).upper()
     facility_relation = str(parsed.get("facility_relation", "")).upper()
@@ -520,9 +523,16 @@ class PermitOS(gl.Contract):
                 "evidence_document": evidence_doc["text"],
                 "evidence_citation_highlight": evidence_citation,
             })
-            result = _normalize(gl.nondet.exec_prompt(prompt, response_format="json"))
+            model_output = gl.nondet.exec_prompt(prompt, response_format="json")
+            result = _normalize(model_output)
             if not result:
-                return json.dumps({"error": "INVALID_MODEL_OUTPUT"})
+                if isinstance(model_output, dict):
+                    detail = "DICT_KEYS_" + "_".join(sorted(str(key)[:20] for key in model_output.keys()))
+                elif isinstance(model_output, str):
+                    detail = "STRING_" + model_output[:80].replace("\n", " ").replace("\r", " ")
+                else:
+                    detail = "TYPE_" + str(type(model_output).__name__)
+                return json.dumps({"error": "INVALID_MODEL_OUTPUT_" + detail[:160]})
             return json.dumps({"result": result, "permit_sha256": permit_sha, "evidence_sha256": evidence_sha}, sort_keys=True)
 
         def validate(leader_result: typing.Any) -> bool:
@@ -617,7 +627,7 @@ class PermitOS(gl.Contract):
 
     @gl.public.view
     def get_contract_version(self) -> str:
-        return json.dumps({"name": "PermitOS", "version": 2, "schema": "sealed-intake-v2"}, sort_keys=True)
+        return json.dumps({"name": "PermitOS", "version": 3, "schema": "sealed-intake-v3"}, sort_keys=True)
 
     @gl.public.view
     def get_permit(self, permit_id: str) -> str:

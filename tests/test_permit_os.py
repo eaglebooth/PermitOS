@@ -109,7 +109,7 @@ def ready_for_assessment(contract, direct_vm, owner, permittee):
 def test_initial_version_and_counts(direct_vm, direct_deploy, direct_owner):
     contract = deploy(direct_vm, direct_deploy, direct_owner)
     assert json.loads(contract.get_contract_version()) == {
-        "name": "PermitOS", "schema": "sealed-intake-v2", "version": 2,
+        "name": "PermitOS", "schema": "sealed-intake-v3", "version": 3,
     }
     assert json.loads(contract.get_counts()) == {
         "permit_count": 0, "condition_total": 0, "attempt_total": 0, "finalized_total": 0,
@@ -275,7 +275,7 @@ def test_evidence_outside_approved_repository_is_rejected(direct_vm, direct_depl
 @pytest.mark.parametrize("bad", [
     {**MATCH, "coverage": "YES"},
     {**MATCH, "contradiction": "false"},
-    {**MATCH, "extra": "field"},
+    {**MATCH, "permit_relation": "MAYBE"},
     {key: value for key, value in MATCH.items() if key != "period_relation"},
 ])
 def test_malformed_model_output_rolls_back(direct_vm, direct_deploy, direct_owner, direct_alice, bad):
@@ -295,6 +295,13 @@ def test_json_string_model_output_is_accepted(direct_vm, direct_deploy, direct_o
     direct_vm.mock_web(PERMIT_URL, {"status": 200, "body": PERMIT})
     direct_vm.mock_web(EVIDENCE_URL, {"status": 200, "body": EVIDENCE})
     direct_vm.mock_llm(r".*", json.dumps(json.dumps(MATCH)))
+    assert contract.assess_condition("EP-204", "0") == "DEMONSTRATED"
+
+
+def test_model_output_with_diagnostic_metadata_is_accepted(direct_vm, direct_deploy, direct_owner, direct_alice):
+    contract = deploy(direct_vm, direct_deploy, direct_owner)
+    ready_for_assessment(contract, direct_vm, direct_owner, direct_alice)
+    mock_assessment(direct_vm, {**MATCH, "diagnostic": "ignored non-consequential metadata"})
     assert contract.assess_condition("EP-204", "0") == "DEMONSTRATED"
 
 
