@@ -1,0 +1,4 @@
+Synthetic authority corrective-action register CA-204-Q3
+Permit EP-204, facility RIVER-17, revision R1, reporting period 2026-Q3.
+Corrective action CA-77 remains open for permit EP-204 during 2026-Q3.
+This fixture is not a real regulator register.

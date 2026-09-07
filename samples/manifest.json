@@ -1,0 +1,11 @@
+{
+  "notice": "Synthetic public demonstration evidence. No item is a regulator publication.",
+  "files": {
+    "permit.txt": { "bytes": 617, "sha256": "14a52e7a246061fd6ba6143349daed1cf4a0f4eea10a72db34e633a51996af95" },
+    "receipt-ready.txt": { "bytes": 295, "sha256": "966f0a760354192ad455ce4eff851b6490cb4597895da88d259c0d766632a7dc" },
+    "inspection-ready.txt": { "bytes": 312, "sha256": "9cbdc524648c69c36935f05195f379d3a3042317f0cbb12033da1873a86d8269" },
+    "inspection-ambiguous.txt": { "bytes": 231, "sha256": "40999b31e9ac69f7bdbe8759795ad3192781aaf6d63121bb1b32f988f9c9229a" },
+    "actions-ready.txt": { "bytes": 245, "sha256": "50c721ed12fd49b476b4bc8f938e6caafe07eac336ed7e770f4f3ef6e5d7bddc" },
+    "actions-open.txt": { "bytes": 248, "sha256": "0ce04f4561082ea95b82b93cdcac89c5042af6d8d8aab2611e9a48df5fbc3a38" }
+  }
+}

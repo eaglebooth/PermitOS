@@ -1,0 +1,11 @@
+DEMO PERMIT EP-204
+Revision: R1
+Facility: RIVER-17
+Jurisdiction: DEMO-NORTH
+Reporting period: 2026-Q3
+
+Condition 0: An authority receipt must state that the quarterly monitoring report for permit EP-204 and facility RIVER-17 was accepted for 2026-Q3.
+Condition 1: An independent inspection certificate must cover permit EP-204, facility RIVER-17, revision R1, and reporting period 2026-Q3.
+Condition 2: The authority corrective-action register must state that no corrective action remains open for permit EP-204 during 2026-Q3.
+
+This is synthetic demonstration text. It is not a real permit or regulator publication.

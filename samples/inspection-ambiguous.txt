@@ -1,0 +1,3 @@
+Synthetic inspection note IC-204
+The note references permit EP-204 and facility RIVER-17 but does not identify the permit revision or reporting period.
+Further review is required. This fixture is not a real inspection certificate.
