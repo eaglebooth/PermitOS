@@ -53,6 +53,11 @@ observed HUMAN_REVIEW result, but does not replace this failed targeted test.
 Source-digest rollback, namespace
 rejection, and review expiry are not claimed as live-verified here.
 
+The next targeted HUMAN run uses fixture commit `f1ab9ca5b4b2c0fd25f8a04be28dd6673a87c461`.
+Its inspection certificate covers every sealed requirement field but omits
+jurisdiction, isolating an `UNKNOWN` identity relation without asserting
+insufficient requirement coverage.
+
 Read all three dossiers without a wallet using `scripts/read-live-results.mjs`
 with `PERMITOS_CONTRACT_ADDRESS` set to the contract above and
 `PERMITOS_RUN_TAG=1788825875731`. It checks each condition as well as the aggregate

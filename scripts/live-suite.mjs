@@ -28,14 +28,14 @@ if (issuerAccount.address.toLowerCase() === permitteeAccount.address.toLowerCase
 const issuer = createClient({ chain: studionet, account: issuerAccount });
 const permittee = createClient({ chain: studionet, account: permitteeAccount });
 
-const commit = "6297207931378e885179b5f4eeae511aec95a80a";
+const commit = "f1ab9ca5b4b2c0fd25f8a04be28dd6673a87c461";
 const base = `https://raw.githubusercontent.com/eaglebooth/PermitOS/${commit}/samples`;
 const authority = "https://raw.githubusercontent.com/eaglebooth/PermitOS";
 const permitSource = { url: `${base}/permit.txt`, sha: "14a52e7a246061fd6ba6143349daed1cf4a0f4eea10a72db34e633a51996af95", bytes: 617 };
 const fixtures = {
   receipt: { url: `${base}/receipt-ready.txt`, sha: "f9d5abb13560289d942a30b112dc5e3afff68de0fba55ce4aad51444dcd4510d", bytes: 385, citation: "The quarterly monitoring report for permit EP-204 and facility RIVER-17 was accepted for 2026-Q3." },
   inspection: { url: `${base}/inspection-ready.txt`, sha: "382e8ed283ceac3cec48f6656b97f43491e44bc079de0b573eadb332127ac552", bytes: 432, citation: "This inspection certificate covers permit EP-204, facility RIVER-17, revision R1, jurisdiction DEMO-NORTH, and reporting period 2026-Q3." },
-  ambiguous: { url: `${base}/inspection-ambiguous.txt`, sha: "dd0465b5b2854a95d29e81028edd101bb9f3092c54553cf6798411850873e201", bytes: 313, citation: "The note references permit EP-204 and facility RIVER-17 in jurisdiction DEMO-NORTH but does not identify the permit revision or reporting period." },
+  ambiguous: { url: `${base}/inspection-ambiguous.txt`, sha: "ac3a9f54253e0207300c06e6f0cae30fbafb70381ac875dbf2ce1c184c66b92a", bytes: 380, citation: "This inspection certificate covers permit EP-204, facility RIVER-17, revision R1, and reporting period 2026-Q3." },
   actionsReady: { url: `${base}/actions-ready.txt`, sha: "e547afcac2e1e25e15ddd0a24d05bc4d3d9dd1394f0054891d271221dc647ddd", bytes: 345, citation: "No corrective action remains open for permit EP-204 during 2026-Q3." },
   actionsOpen: { url: `${base}/actions-open.txt`, sha: "0052b1bfcc5a7f3289571f30e909103c5681051128433263055b0d26d6da5db0", bytes: 348, citation: "Corrective action CA-77 remains open for permit EP-204 during 2026-Q3." },
 };
@@ -158,7 +158,10 @@ async function runScenario(name, evidenceList, expected) {
   return id;
 }
 
-const ready = await runScenario("READY", [fixtures.receipt, fixtures.inspection, fixtures.actionsReady], "READY_FOR_REGULATOR_REVIEW");
-const action = await runScenario("ACTION", [fixtures.receipt, fixtures.inspection, fixtures.actionsOpen], "ACTION_REQUIRED");
-const human = await runScenario("HUMAN", [fixtures.receipt, fixtures.ambiguous, fixtures.actionsReady], "HUMAN_REVIEW");
-process.stdout.write(`LIVE_SUITE_COMPLETE ${JSON.stringify({ contract, commit, issuer: issuerAccount.address, permittee: permitteeAccount.address, dossiers: { ready, action, human }, transactions }, null, 2)}\n`);
+const scenarioFilter = (process.env.PERMITOS_SCENARIOS || "READY,ACTION,HUMAN").split(",").map(value => value.trim().toUpperCase()).filter(Boolean);
+const dossiers = {};
+if (scenarioFilter.includes("READY")) dossiers.ready = await runScenario("READY", [fixtures.receipt, fixtures.inspection, fixtures.actionsReady], "READY_FOR_REGULATOR_REVIEW");
+if (scenarioFilter.includes("ACTION")) dossiers.action = await runScenario("ACTION", [fixtures.receipt, fixtures.inspection, fixtures.actionsOpen], "ACTION_REQUIRED");
+if (scenarioFilter.includes("HUMAN")) dossiers.human = await runScenario("HUMAN", [fixtures.receipt, fixtures.ambiguous, fixtures.actionsReady], "HUMAN_REVIEW");
+if (!Object.keys(dossiers).length) throw new Error("PERMITOS_SCENARIOS must include READY, ACTION, or HUMAN");
+process.stdout.write(`LIVE_SUITE_COMPLETE ${JSON.stringify({ contract, commit, issuer: issuerAccount.address, permittee: permitteeAccount.address, dossiers, transactions }, null, 2)}\n`);
