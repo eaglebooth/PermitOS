@@ -2,6 +2,10 @@
 
 Contract: [0x44A1105e6c3036502Ec59d8246495E863753307D](https://explorer-studio.genlayer.com/address/0x44A1105e6c3036502Ec59d8246495E863753307D).
 
+Frontend: [permitos-two.vercel.app](https://permitos-two.vercel.app). Both `/` and
+`/console` returned HTTP 200 after production deployment, and the production
+JavaScript bundle contains the V4 address above.
+
 Source: [6916644](https://github.com/eaglebooth/PermitOS/blob/6916644cce94e6324a6ccbe0201f9bae6a171544/contracts/permit_os.py).
 Fixture bytes: [6297207](https://github.com/eaglebooth/PermitOS/tree/6297207931378e885179b5f4eeae511aec95a80a/samples).
 The handshake returned `PermitOS`, version `4`, schema `sealed-intake-v4`.
