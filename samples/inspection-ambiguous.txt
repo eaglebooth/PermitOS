@@ -1,3 +1,4 @@
-Synthetic inspection note IC-204 for the PermitOS demonstration.
-The note references permit EP-204 and facility RIVER-17 in jurisdiction DEMO-NORTH but does not identify the permit revision or reporting period.
-It does not confirm whether all required inspection items were addressed. Further review is required.
+Synthetic independent inspection certificate IC-204-Q3 for the PermitOS demonstration.
+This inspection certificate covers permit EP-204, facility RIVER-17, revision R1, and reporting period 2026-Q3.
+The documented inspection items required by the bounded condition were addressed.
+The certificate does not identify a jurisdiction, so that identity relation requires human review.
