@@ -16,10 +16,12 @@ digest verification do not establish that a publisher is a real regulator.
 | `EP204-READY-1788825875731` | `READY_FOR_REGULATOR_REVIEW` | DEMONSTRATED / DEMONSTRATED / DEMONSTRATED |
 | `EP204-ACTION-1788825875731` | `ACTION_REQUIRED` | DEMONSTRATED / DEMONSTRATED / NOT_DEMONSTRATED |
 | `EP204-HUMAN-1788825875731` | `ACTION_REQUIRED` (expected HUMAN_REVIEW; failed assertion) | DEMONSTRATED / NOT_DEMONSTRATED / DEMONSTRATED |
+| `EP204-HUMAN-1788828436149` | `HUMAN_REVIEW` | DEMONSTRATED / UNRESOLVED / DEMONSTRATED |
 
 - READY finalization: [transaction](https://explorer-studio.genlayer.com/tx/0xb400dfafec73b07110c117a0371f069c26f87917e1b3f4d8dfc063465d0b2def).
 - ACTION finalization: [transaction](https://explorer-studio.genlayer.com/tx/0x259d6796050c595e15e0c04a2c7e077e56439b8b08d784512fa98efcbb2b9b21).
 - HUMAN finalization: [transaction](https://explorer-studio.genlayer.com/tx/0xacbbb9d70caee03dfd274cba891e838055fe2d24de3a736f2f5440dcdbded125). Condition 1 stored UNKNOWN revision/period, false contradiction, and INSUFFICIENT coverage. V4 prioritizes insufficient coverage over unknown identity, producing NOT_DEMONSTRATED. This is a failed expected-outcome test, not a successful HUMAN scenario.
+- Targeted HUMAN finalization: [transaction](https://explorer-studio.genlayer.com/tx/0xeceb8a86c933c28973d963ca802f7a601ba901983a64eade7e08abf33a16fff7). Condition 1 stored `jurisdiction_relation=UNKNOWN`, `coverage=SUFFICIENT`, `contradiction=false`, and `outcome=UNRESOLVED`; the aggregate result is `HUMAN_REVIEW`.
 - ACTION condition 2: [assessment](https://explorer-studio.genlayer.com/tx/0x6f9f0dab16392bfb00d21f7708f6888c8a50440389a67e90b285aeb408af2a70). The selected register states that CA-77 remains open; the stored result has `contradiction=true` and `coverage=INSUFFICIENT`.
 
 ## Finalized rejection paths
@@ -47,9 +49,8 @@ The contract source was unchanged between these two runs.
 model normalization, and outcome derivation. Local mocks do not prove live
 validator behavior; only the transactions above establish the listed live cases.
 Independent readback confirmed READY and ACTION including every condition and
-accepted digest; HUMAN failed its expected outcome. The full suite exited with
-code 1 and is not passing. The earlier original-fixture dossier demonstrates an
-observed HUMAN_REVIEW result, but does not replace this failed targeted test.
+accepted digest. The first HUMAN fixture failed its expected outcome, then the
+targeted fixture isolated missing jurisdiction and passed with exit code 0.
 Source-digest rollback, namespace
 rejection, and review expiry are not claimed as live-verified here.
 
@@ -58,7 +59,8 @@ Its inspection certificate covers every sealed requirement field but omits
 jurisdiction, isolating an `UNKNOWN` identity relation without asserting
 insufficient requirement coverage.
 
-Read all three dossiers without a wallet using `scripts/read-live-results.mjs`
-with `PERMITOS_CONTRACT_ADDRESS` set to the contract above and
-`PERMITOS_RUN_TAG=1788825875731`. It checks each condition as well as the aggregate
-outcome and accepted pack digest. Run it after all three scenarios finalize.
+Read all three successful dossiers without a wallet using
+`scripts/read-live-results.mjs` with `PERMITOS_CONTRACT_ADDRESS` set to the contract
+above, `PERMITOS_RUN_TAG=1788825875731`, and
+`PERMITOS_HUMAN_TAG=1788828436149`. It checks each condition as well as the
+aggregate outcome and accepted pack digest.

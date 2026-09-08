@@ -22,7 +22,8 @@ const version = await read("get_contract_version");
 if (version.version !== 4 || version.schema !== "sealed-intake-v4") throw new Error("Unexpected deployment");
 const results = [];
 for (const [name, [outcome, conditionOutcomes]] of Object.entries(expected)) {
-  const id = `EP204-${name}-${tag}`;
+  const scenarioTag = process.env[`PERMITOS_${name}_TAG`] || tag;
+  const id = `EP204-${name}-${scenarioTag}`;
   const permit = await read("get_permit", [id]);
   const conditions = await Promise.all([0, 1, 2].map(i => read("get_condition", [id, String(i)])));
   const passed = permit.status === "FINALIZED" && permit.result === outcome && permit.accepted_digest === permit.pack_digest && conditions.every((c, i) => c.status === "ASSESSED" && c.outcome === conditionOutcomes[i]);

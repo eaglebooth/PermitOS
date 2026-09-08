@@ -111,7 +111,7 @@ The supplied PermitOS logo remains unchanged at `public/permitos-logo.png`.
 - Diagnostic V3 contract: [`0xCC1611F73F8f9f0d21D5F0bD2F8617025A26B4dc`](https://explorer-studio.genlayer.com/address/0xCC1611F73F8f9f0d21D5F0bD2F8617025A26B4dc). The live run proved the response was an object with all required fields; V4 canonicalizes a finite, explicitly allowed set of model enum aliases while remaining fail-closed for unknown values and types.
 - V4 contract source: [`6916644`](https://github.com/eaglebooth/PermitOS/commit/6916644cce94e6324a6ccbe0201f9bae6a171544).
 - V4 deployment under verification: [`0x44A1105e6c3036502Ec59d8246495E863753307D`](https://explorer-studio.genlayer.com/address/0x44A1105e6c3036502Ec59d8246495E863753307D).
-- Current fixture commit: [`6297207`](https://github.com/eaglebooth/PermitOS/commit/6297207931378e885179b5f4eeae511aec95a80a). These synthetic records explicitly bind jurisdiction as well as permit, revision, facility, and reporting period. The original fixtures remain available at `d5bb8c3cd571f444b8921db007e442073450a0e1`.
+- Current fixture commit: [`f1ab9ca`](https://github.com/eaglebooth/PermitOS/commit/f1ab9ca5b4b2c0fd25f8a04be28dd6673a87c461). The positive synthetic records explicitly bind jurisdiction as well as permit, revision, facility, and reporting period; the HUMAN fixture omits only jurisdiction to isolate an unresolved identity relation. The original fixtures remain available at `d5bb8c3cd571f444b8921db007e442073450a0e1`.
 - Fixture authority prefix: `https://raw.githubusercontent.com/eaglebooth/PermitOS`
 
 The frontend validates `get_contract_version` against the configured deployment before
