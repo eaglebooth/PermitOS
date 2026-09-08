@@ -28,16 +28,16 @@ if (issuerAccount.address.toLowerCase() === permitteeAccount.address.toLowerCase
 const issuer = createClient({ chain: studionet, account: issuerAccount });
 const permittee = createClient({ chain: studionet, account: permitteeAccount });
 
-const commit = "d5bb8c3cd571f444b8921db007e442073450a0e1";
+const commit = "6297207931378e885179b5f4eeae511aec95a80a";
 const base = `https://raw.githubusercontent.com/eaglebooth/PermitOS/${commit}/samples`;
 const authority = "https://raw.githubusercontent.com/eaglebooth/PermitOS";
 const permitSource = { url: `${base}/permit.txt`, sha: "14a52e7a246061fd6ba6143349daed1cf4a0f4eea10a72db34e633a51996af95", bytes: 617 };
 const fixtures = {
-  receipt: { url: `${base}/receipt-ready.txt`, sha: "966f0a760354192ad455ce4eff851b6490cb4597895da88d259c0d766632a7dc", bytes: 295, citation: "The quarterly monitoring report for permit EP-204 and facility RIVER-17 was accepted for 2026-Q3." },
-  inspection: { url: `${base}/inspection-ready.txt`, sha: "9cbdc524648c69c36935f05195f379d3a3042317f0cbb12033da1873a86d8269", bytes: 312, citation: "This inspection certificate covers permit EP-204, facility RIVER-17, revision R1, and reporting period 2026-Q3." },
-  ambiguous: { url: `${base}/inspection-ambiguous.txt`, sha: "40999b31e9ac69f7bdbe8759795ad3192781aaf6d63121bb1b32f988f9c9229a", bytes: 231, citation: "The record does not identify a reporting period and does not confirm whether all procedure items were addressed." },
-  actionsReady: { url: `${base}/actions-ready.txt`, sha: "50c721ed12fd49b476b4bc8f938e6caafe07eac336ed7e770f4f3ef6e5d7bddc", bytes: 245, citation: "No corrective action remains open for permit EP-204 during 2026-Q3." },
-  actionsOpen: { url: `${base}/actions-open.txt`, sha: "0ce04f4561082ea95b82b93cdcac89c5042af6d8d8aab2611e9a48df5fbc3a38", bytes: 248, citation: "Corrective action CA-77 remains open for permit EP-204 during 2026-Q3." },
+  receipt: { url: `${base}/receipt-ready.txt`, sha: "f9d5abb13560289d942a30b112dc5e3afff68de0fba55ce4aad51444dcd4510d", bytes: 385, citation: "The quarterly monitoring report for permit EP-204 and facility RIVER-17 was accepted for 2026-Q3." },
+  inspection: { url: `${base}/inspection-ready.txt`, sha: "382e8ed283ceac3cec48f6656b97f43491e44bc079de0b573eadb332127ac552", bytes: 432, citation: "This inspection certificate covers permit EP-204, facility RIVER-17, revision R1, jurisdiction DEMO-NORTH, and reporting period 2026-Q3." },
+  ambiguous: { url: `${base}/inspection-ambiguous.txt`, sha: "dd0465b5b2854a95d29e81028edd101bb9f3092c54553cf6798411850873e201", bytes: 313, citation: "The note references permit EP-204 and facility RIVER-17 in jurisdiction DEMO-NORTH but does not identify the permit revision or reporting period." },
+  actionsReady: { url: `${base}/actions-ready.txt`, sha: "e547afcac2e1e25e15ddd0a24d05bc4d3d9dd1394f0054891d271221dc647ddd", bytes: 345, citation: "No corrective action remains open for permit EP-204 during 2026-Q3." },
+  actionsOpen: { url: `${base}/actions-open.txt`, sha: "0052b1bfcc5a7f3289571f30e909103c5681051128433263055b0d26d6da5db0", bytes: 348, citation: "Corrective action CA-77 remains open for permit EP-204 during 2026-Q3." },
 };
 const conditions = [
   { requirement: "An authority receipt must state that the quarterly monitoring report for permit EP-204 and facility RIVER-17 was accepted for 2026-Q3.", citation: "Condition 0: An authority receipt must state that the quarterly monitoring report for permit EP-204 and facility RIVER-17 was accepted for 2026-Q3.", severity: "MATERIAL", publisher: "SYNTHETIC_AUTHORITY" },
@@ -99,15 +99,20 @@ async function write(label, functionName, args, client = issuer) {
   return hash;
 }
 
-async function expectRollback(label, functionName, args, client) {
+async function expectRollback(label, functionName, args, client, expectedError) {
   const before = await read("get_counts");
+  const beforePermit = await read("get_permit", [args[0]]);
+  const beforeConditions = await Promise.all(conditions.map((_, i) => read("get_condition", [args[0], String(i)])));
   const hash = await client.writeContract({ address: contract, functionName, args, value: 0n });
   process.stdout.write(`${label}: submitted ${hash}\n`);
   const { receipt, tx } = await finalized(client, hash);
   const rejected = failure(tx, receipt);
-  if (!rejected) throw new Error(`${label}: expected rollback but succeeded`);
+  if (!rejected || !rejected.includes(expectedError) || String(tx?.statusName ?? receipt?.statusName).toUpperCase() !== "FINALIZED") throw new Error(`${label}: expected finalized ${expectedError}, got ${rejected}`);
   const after = await read("get_counts");
   if (JSON.stringify(before) !== JSON.stringify(after)) throw new Error(`${label}: rollback changed counts`);
+  const afterPermit = await read("get_permit", [args[0]]);
+  const afterConditions = await Promise.all(conditions.map((_, i) => read("get_condition", [args[0], String(i)])));
+  if (JSON.stringify(beforePermit) !== JSON.stringify(afterPermit) || JSON.stringify(beforeConditions) !== JSON.stringify(afterConditions)) throw new Error(`${label}: rollback changed dossier state`);
   process.stdout.write(`${label}: FINALIZED rollback (${rejected})\n`);
   return hash;
 }
@@ -130,9 +135,9 @@ async function runScenario(name, evidenceList, expected) {
   transactions.push(await write(`${name}.seal`, "seal_permit", [id]));
   const sealed = await read("get_permit", [id]);
   if (sealed.status !== "SEALED" || !/^[0-9a-f]{64}$/.test(sealed.pack_digest)) throw new Error(`${name}: invalid sealed readback`);
-  if (name === "READY") transactions.push(await expectRollback(`${name}.wrong_digest`, "accept_permit", [id, "0".repeat(64)], permittee));
+  if (name === "READY") transactions.push(await expectRollback(`${name}.wrong_digest`, "accept_permit", [id, "0".repeat(64)], permittee, "PACK_DIGEST_MISMATCH"));
   transactions.push(await write(`${name}.accept`, "accept_permit", [id, sealed.pack_digest], permittee));
-  if (name === "READY") transactions.push(await expectRollback(`${name}.wrong_role_submit`, "submit_evidence", [id, "0", fixtures.receipt.url, fixtures.receipt.sha, fixtures.receipt.bytes, fixtures.receipt.citation], issuer));
+  if (name === "READY") transactions.push(await expectRollback(`${name}.wrong_role_submit`, "submit_evidence", [id, "0", fixtures.receipt.url, fixtures.receipt.sha, fixtures.receipt.bytes, fixtures.receipt.citation], issuer, "PERMITTEE_ONLY"));
   for (let i = 0; i < evidenceList.length; i++) {
     const evidence = evidenceList[i];
     transactions.push(await write(`${name}.submit${i}`, "submit_evidence", [id, String(i), evidence.url, evidence.sha, evidence.bytes, evidence.citation], permittee));
@@ -147,6 +152,8 @@ async function runScenario(name, evidenceList, expected) {
   if (final.status !== "FINALIZED" || final.result !== expected) throw new Error(`${name}: expected ${expected}, got ${final.status}/${final.result}`);
   const resolved = [];
   for (let i = 0; i < conditions.length; i++) resolved.push(await read("get_condition", [id, String(i)]));
+  const expectedConditions = name === "ACTION" ? ["DEMONSTRATED", "DEMONSTRATED", "NOT_DEMONSTRATED"] : name === "HUMAN" ? ["DEMONSTRATED", "UNRESOLVED", "DEMONSTRATED"] : ["DEMONSTRATED", "DEMONSTRATED", "DEMONSTRATED"];
+  if (resolved.some((condition, i) => condition.status !== "ASSESSED" || condition.outcome !== expectedConditions[i])) throw new Error(`${name}: unexpected condition outcomes ${JSON.stringify(resolved)}`);
   process.stdout.write(`SCENARIO_COMPLETE ${JSON.stringify({ name, id, expected, final, conditions: resolved })}\n`);
   return id;
 }

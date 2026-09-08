@@ -73,8 +73,10 @@ Suggested scenarios:
 - Ready: receipt-ready + inspection-ready + actions-ready.
 - Action required: select actions-open for condition 2.
 - Human review: select inspection-ambiguous for condition 1.
-- Retryable failure: use a correct committed URL with a deliberately wrong digest,
-  demonstrate rollback, then submit a new correct attempt before the deadline.
+- Source-integrity failure: use a correct committed URL with a deliberately wrong
+  digest and demonstrate assessment rollback. Once intake closes, the selection
+  is immutable; demonstrate corrected bindings in a new dossier. Transient fetch
+  failures can be retried on the same selection during the review window.
 
 ## Adversarial properties
 
@@ -107,9 +109,11 @@ The supplied PermitOS logo remains unchanged at `public/permitos-logo.png`.
 - Superseded V1 contract: [`0xfbA2E85aA023d0457C4Ac5b18522243093187414`](https://explorer-studio.genlayer.com/address/0xfbA2E85aA023d0457C4Ac5b18522243093187414). Live assessment exposed a JSON-string normalization issue.
 - Superseded V2 contract: [`0x4ce975E084B24525ECD8D3A1d9bAD938d6A6D5B7`](https://explorer-studio.genlayer.com/address/0x4ce975E084B24525ECD8D3A1d9bAD938d6A6D5B7). It accepted nested JSON but StudioNet still rejected the bounded model response.
 - Diagnostic V3 contract: [`0xCC1611F73F8f9f0d21D5F0bD2F8617025A26B4dc`](https://explorer-studio.genlayer.com/address/0xCC1611F73F8f9f0d21D5F0bD2F8617025A26B4dc). The live run proved the response was an object with all required fields; V4 canonicalizes a finite, explicitly allowed set of model enum aliases while remaining fail-closed for unknown values and types.
-- Verified source and fixture commit: [`d5bb8c3cd571f444b8921db007e442073450a0e1`](https://github.com/eaglebooth/PermitOS/commit/d5bb8c3cd571f444b8921db007e442073450a0e1)
+- V4 contract source: [`6916644`](https://github.com/eaglebooth/PermitOS/commit/6916644cce94e6324a6ccbe0201f9bae6a171544).
+- V4 deployment under verification: [`0x44A1105e6c3036502Ec59d8246495E863753307D`](https://explorer-studio.genlayer.com/address/0x44A1105e6c3036502Ec59d8246495E863753307D).
+- Current fixture commit: [`6297207`](https://github.com/eaglebooth/PermitOS/commit/6297207931378e885179b5f4eeae511aec95a80a). These synthetic records explicitly bind jurisdiction as well as permit, revision, facility, and reporting period. The original fixtures remain available at `d5bb8c3cd571f444b8921db007e442073450a0e1`.
 - Fixture authority prefix: `https://raw.githubusercontent.com/eaglebooth/PermitOS`
 
 The frontend validates `get_contract_version` against the configured deployment before
-every write. The first public fixture set remains pinned to the full commit above,
+every write. The current public fixture set remains pinned to the full commit above,
 so later documentation changes cannot alter the bytes assessed by validators.
