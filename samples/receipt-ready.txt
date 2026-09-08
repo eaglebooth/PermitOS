@@ -1,4 +1,4 @@
-Synthetic authority receipt AR-204-Q3
-Permit EP-204, facility RIVER-17, revision R1, reporting period 2026-Q3.
+Synthetic authority receipt AR-204-Q3 for the PermitOS demonstration.
+Permit EP-204, facility RIVER-17, revision R1, jurisdiction DEMO-NORTH, reporting period 2026-Q3.
 The quarterly monitoring report for permit EP-204 and facility RIVER-17 was accepted for 2026-Q3.
-This fixture demonstrates document binding only and is not a real regulator decision.
+This is the complete selected authority receipt for the bounded demonstration condition; no material field is omitted.
